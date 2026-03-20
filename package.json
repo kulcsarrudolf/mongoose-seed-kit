@@ -1,0 +1,71 @@
+{
+  "name": "mongoose-seed-kit",
+  "version": "0.0.1",
+  "description": "A lightweight, zero-dependency seeder toolkit for Mongoose",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "bin/**/*"
+  ],
+  "bin": {
+    "mongoose-seed-kit": "./bin/mongoose-seed-kit.js"
+  },
+  "scripts": {
+    "prebuild": "shx rm -rf dist",
+    "build": "tsc",
+    "pretest": "tsc -p tests",
+    "test": "mocha",
+    "prepack": "yarn run build",
+    "pack": "yarn pack",
+    "publish": "yarn publish",
+    "format": "prettier --write 'src/**/*.ts' 'tests/**/*.ts'",
+    "format:check": "prettier --check 'src/**/*.ts' 'tests/**/*.ts'",
+    "prepare": "husky",
+    "release": "bash scripts/release.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kulcsarrudolf/mongoose-seed-kit.git"
+  },
+  "keywords": [
+    "mongoose",
+    "seeder",
+    "seed",
+    "database",
+    "mongodb",
+    "migration",
+    "toolkit"
+  ],
+  "author": "Kulcsár Rudolf",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kulcsarrudolf/mongoose-seed-kit/issues"
+  },
+  "peerDependencies": {
+    "mongoose": ">=6.0.0"
+  },
+  "devDependencies": {
+    "@testcontainers/mongodb": "^10.0.0",
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.4.2",
+    "@types/sinon": "^10.0.15",
+    "chai": "^4.3.7",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "mocha": "^10.2.0",
+    "mongoose": "^7.4.2",
+    "prettier": "^3.8.1",
+    "shx": "^0.3.4",
+    "sinon": "^15.2.0",
+    "testcontainers": "^10.0.0",
+    "typescript": "^5.1.6"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "lint-staged": {
+    "*.ts": "prettier --write"
+  }
+}
