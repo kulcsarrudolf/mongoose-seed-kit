@@ -1,9 +1,9 @@
 # Mongoose Seed Kit
 
-[![npm version](https://img.shields.io/npm/v/mongoose-seed-kit)](https://www.npmjs.com/package/mongoose-seed-kit)
-[![license](https://img.shields.io/npm/l/mongoose-seed-kit)](https://github.com/kulcsarrudolf/mongoose-seed-kit/blob/main/LICENSE)
-[![downloads](https://img.shields.io/npm/dt/mongoose-seed-kit)](https://www.npmjs.com/package/mongoose-seed-kit)
-[![GitHub Stars](https://img.shields.io/github/stars/kulcsarrudolf/mongoose-seed-kit?style=social)](https://github.com/kulcsarrudolf/mongoose-seed-kit)
+[![npm version](https://badgen.net/npm/v/mongoose-seed-kit)](https://www.npmjs.com/package/mongoose-seed-kit)
+[![license](https://badgen.net/npm/license/mongoose-seed-kit)](https://github.com/kulcsarrudolf/mongoose-seed-kit/blob/main/LICENSE)
+[![downloads](https://badgen.net/npm/dt/mongoose-seed-kit)](https://www.npmjs.com/package/mongoose-seed-kit)
+[![GitHub Stars](https://badgen.net/github/stars/kulcsarrudolf/mongoose-seed-kit)](https://github.com/kulcsarrudolf/mongoose-seed-kit)
 [![tests](https://img.shields.io/github/actions/workflow/status/kulcsarrudolf/mongoose-seed-kit/publish.yml?label=tests)](https://github.com/kulcsarrudolf/mongoose-seed-kit/actions)
 
 A lightweight, zero-dependency seeder toolkit for Mongoose. Run one-time database seed scripts on app startup, track execution status, and manage seeders via CLI — all without registering any Mongoose models.
