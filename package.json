@@ -1,6 +1,6 @@
 {
   "name": "mongoose-seed-kit",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A lightweight, zero-dependency seeder toolkit for Mongoose",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
