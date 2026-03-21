@@ -59,6 +59,13 @@ await mongoose.connect(process.env.DATABASE_URL);
 const results = await runPendingSeeders();
 ```
 
+## How It Works
+
+1. Seeder files are sorted alphabetically — the timestamp prefix (`20260320120000-`) ensures chronological order.
+2. On each `runPendingSeeders()` call, only seeders without a `success` record in the tracking collection are executed.
+3. If a seeder fails, it is recorded as `failed` and will be retried on the next run. Execution continues with remaining seeders regardless.
+4. Tracking is stored in a MongoDB collection (`seeders` by default) — no Mongoose model registration required.
+
 ## API
 
 ### `runPendingSeeders(config?)`
