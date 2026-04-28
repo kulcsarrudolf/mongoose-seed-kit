@@ -1,7 +1,23 @@
+/**
+ * `seedersPath` may be a static string or a function evaluated lazily when a
+ * runner is invoked. The function form lets consumers choose between a `src/`
+ * tree (loaded by tsx/ts-node in development) and a `dist/` tree (loaded by
+ * `node dist/...` in production) so that seeders share the same module graph
+ * as the rest of the app and don't trigger duplicate-model errors in Mongoose.
+ */
+export type SeedersPathResolver = () => string;
+
 export interface MongooseSeederConfig {
-  seedersPath: string;
+  seedersPath: string | SeedersPathResolver;
   collectionName?: string;
   filePattern?: RegExp;
+}
+
+/** Internal shape after `loadConfig` has resolved any function form. */
+export interface ResolvedMongooseSeederConfig {
+  seedersPath: string;
+  collectionName: string;
+  filePattern: RegExp;
 }
 
 export interface SeederRunResult {

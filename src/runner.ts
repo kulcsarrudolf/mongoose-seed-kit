@@ -10,6 +10,7 @@ import {
 } from "./tracker";
 import {
   MongooseSeederConfig,
+  ResolvedMongooseSeederConfig,
   SeederRunResult,
   SeederStatus,
   SeederRecord,
@@ -17,13 +18,13 @@ import {
 
 type SeederFn = () => Promise<void>;
 
-function getSeederFiles(config: MongooseSeederConfig): string[] {
+function getSeederFiles(config: ResolvedMongooseSeederConfig): string[] {
   if (!fs.existsSync(config.seedersPath)) {
     return [];
   }
   return fs
     .readdirSync(config.seedersPath)
-    .filter((f) => config.filePattern!.test(f))
+    .filter((f) => config.filePattern.test(f))
     .sort();
 }
 
@@ -70,10 +71,10 @@ export async function runPendingSeeders(
   overrides?: Partial<MongooseSeederConfig>,
 ): Promise<SeederRunResult[]> {
   const config = loadConfig(overrides);
-  await ensureIndexes(config.collectionName!);
+  await ensureIndexes(config.collectionName);
 
   const files = getSeederFiles(config);
-  const executed = await getExecutedSeeders(config.collectionName!);
+  const executed = await getExecutedSeeders(config.collectionName);
   const executedNames = new Set(executed.map((s) => s.name));
 
   const results: SeederRunResult[] = [];
@@ -87,7 +88,7 @@ export async function runPendingSeeders(
     }
 
     const filepath = path.join(config.seedersPath, file);
-    await runSingleSeeder(name, filepath, config.collectionName!, results);
+    await runSingleSeeder(name, filepath, config.collectionName, results);
   }
 
   return results;
@@ -98,7 +99,7 @@ export async function runSeederByName(
   overrides?: Partial<MongooseSeederConfig>,
 ): Promise<SeederRunResult[]> {
   const config = loadConfig(overrides);
-  await ensureIndexes(config.collectionName!);
+  await ensureIndexes(config.collectionName);
 
   const files = getSeederFiles(config);
   const file = files.find(
@@ -111,7 +112,7 @@ export async function runSeederByName(
 
   const results: SeederRunResult[] = [];
   const filepath = path.join(config.seedersPath, file);
-  await runSingleSeeder(seederName, filepath, config.collectionName!, results);
+  await runSingleSeeder(seederName, filepath, config.collectionName, results);
   return results;
 }
 
@@ -119,10 +120,10 @@ export async function getSeederStatuses(
   overrides?: Partial<MongooseSeederConfig>,
 ): Promise<SeederStatus[]> {
   const config = loadConfig(overrides);
-  await ensureIndexes(config.collectionName!);
+  await ensureIndexes(config.collectionName);
 
   const files = getSeederFiles(config);
-  const tracked = await getAllTrackedSeeders(config.collectionName!);
+  const tracked = await getAllTrackedSeeders(config.collectionName);
   const trackedMap = new Map<string, SeederRecord>(
     tracked.map((s) => [s.name, s]),
   );
@@ -147,5 +148,5 @@ export async function resetSeeder(
   overrides?: Partial<MongooseSeederConfig>,
 ): Promise<void> {
   const config = loadConfig(overrides);
-  await deleteSeederRecord(config.collectionName!, seederName);
+  await deleteSeederRecord(config.collectionName, seederName);
 }

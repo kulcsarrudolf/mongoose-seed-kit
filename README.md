@@ -106,11 +106,49 @@ await resetSeeder("20260320120000-user.seeder");
 
 All functions accept an optional inline config. If omitted, the config file is loaded automatically.
 
-| Option           | Type     | Default                                  | Description                              |
-| ---------------- | -------- | ---------------------------------------- | ---------------------------------------- |
-| `seedersPath`    | `string` | —                                        | Path to directory containing seeder files |
-| `collectionName` | `string` | `"seeders"`                              | MongoDB collection for tracking execution |
-| `filePattern`    | `RegExp` | `/^\d{14}-.+\.seeder\.(ts\|js)$/`        | Pattern to match seeder files            |
+| Option           | Type                  | Default                                  | Description                              |
+| ---------------- | --------------------- | ---------------------------------------- | ---------------------------------------- |
+| `seedersPath`    | `string \| () => string` | —                                     | Path to directory containing seeder files. May be a function for runtime resolution (see below). |
+| `collectionName` | `string`              | `"seeders"`                              | MongoDB collection for tracking execution |
+| `filePattern`    | `RegExp`              | `/^\d{14}-.+\.seeder\.(ts\|js)$/`        | Pattern to match seeder files            |
+
+### Avoiding duplicate Mongoose model errors (`src` vs `dist`)
+
+Seeders typically `require("../models/...")`. If your **app** loads models from
+`src/` (e.g. via `tsx`/`ts-node` in development) while seeders are loaded from
+`dist/` (because that's where you point `seedersPath`), Node treats them as
+**two different modules**. The model file runs twice and Mongoose throws:
+
+```
+Cannot overwrite `Teaching` model once compiled.
+```
+
+The fix is to keep seeders in the **same module graph** as the rest of the app:
+use `src/db/seeders` in development and `dist/db/seeders` in production.
+`mongoose-seed-kit` ships a helper for this:
+
+```javascript
+// mongoose-seed-kit.config.js
+const path = require("path");
+const { resolveSeedersPath } = require("mongoose-seed-kit");
+
+module.exports = {
+  seedersPath: resolveSeedersPath({
+    src: path.join(__dirname, "src/db/seeders"),
+    dist: path.join(__dirname, "dist/db/seeders"),
+    // Optional explicit override:
+    srcWhen: () => process.env.NODE_ENV === "development",
+  }),
+};
+```
+
+`resolveSeedersPath` picks `src` when:
+
+- `srcWhen()` returns `true`, or
+- the entry script ends in `.ts`/`.tsx` or is loaded via `tsx` / `ts-node`.
+
+It picks `dist` when the runtime is plain `node dist/...`. You can also pass
+your own function as `seedersPath` for full control.
 
 Config is resolved from (in order):
 

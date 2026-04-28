@@ -60,6 +60,24 @@ describe("config", function () {
     }
   });
 
+  it("should accept seedersPath as a function and resolve lazily", function () {
+    let calls = 0;
+    const config = loadConfig({
+      seedersPath: () => {
+        calls += 1;
+        return path.join(tmpDir, "lazy-seeders");
+      },
+    });
+    expect(calls).to.equal(1);
+    expect(config.seedersPath).to.equal(path.join(tmpDir, "lazy-seeders"));
+  });
+
+  it("should throw if seedersPath function returns empty", function () {
+    expect(() =>
+      loadConfig({ seedersPath: () => "" }),
+    ).to.throw("non-empty string");
+  });
+
   it("should resolve config from package.json", function () {
     const pkgFile = path.join(tmpDir, "package.json");
     fs.writeFileSync(
