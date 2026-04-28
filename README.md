@@ -6,7 +6,7 @@
 [![GitHub Stars](https://badgen.net/github/stars/kulcsarrudolf/mongoose-seed-kit)](https://github.com/kulcsarrudolf/mongoose-seed-kit)
 [![tests](https://img.shields.io/github/actions/workflow/status/kulcsarrudolf/mongoose-seed-kit/publish.yml?label=tests)](https://github.com/kulcsarrudolf/mongoose-seed-kit/actions)
 
-A lightweight, zero-dependency seeder toolkit for Mongoose. Run one-time database seed scripts on app startup, track execution status, and manage seeders via CLI — all without registering any Mongoose models.
+A lightweight, zero-dependency seeder toolkit for Mongoose. Run one-time seed scripts on app startup, track execution status, and manage seeders via CLI without registering extra Mongoose models.
 
 ## Installation
 
@@ -18,25 +18,19 @@ npm install mongoose-seed-kit
 
 ## Quick Start
 
-### 1. Create a config file
-
-Create `mongoose-seed-kit.config.js` in your project root:
+Create `mongoose-seed-kit.config.js`:
 
 ```javascript
 module.exports = { seedersPath: "./src/db/seeders" };
 ```
 
-### 2. Create your first seeder
+Create a seeder:
 
 ```bash
 npx mongoose-seed-kit create user
 ```
 
-This generates `src/db/seeders/20260320120000-user.seeder.ts`.
-
-### 3. Implement the seeder
-
-Edit the generated file:
+Then implement the generated `src/db/seeders/20260320120000-user.seeder.ts`:
 
 ```typescript
 const seed = async (): Promise<void> => {
@@ -49,14 +43,14 @@ const seed = async (): Promise<void> => {
 export default seed;
 ```
 
-### 4. Run on app startup
+Run pending seeders after connecting Mongoose:
 
 ```typescript
 import mongoose from "mongoose";
 import { runPendingSeeders } from "mongoose-seed-kit";
 
 await mongoose.connect(process.env.DATABASE_URL);
-const results = await runPendingSeeders();
+await runPendingSeeders();
 ```
 
 ## How It Works
@@ -68,43 +62,18 @@ const results = await runPendingSeeders();
 
 ## API
 
-### `runPendingSeeders(config?)`
+All APIs accept an optional config override and assume Mongoose is already connected.
 
-Runs all seeders that haven't been successfully executed yet. Returns `SeederRunResult[]`.
-
-```typescript
-const results = await runPendingSeeders();
-// [{ name: "20260320120000-user.seeder", status: "success" }]
-```
-
-### `runSeederByName(name, config?)`
-
-Force-runs a specific seeder by name (even if already executed). Returns `SeederRunResult[]`.
-
-```typescript
-const results = await runSeederByName("20260320120000-user.seeder");
-```
-
-### `getSeederStatuses(config?)`
-
-Lists all seeders with their status (`pending`, `success`, or `failed`). Returns `SeederStatus[]`.
-
-```typescript
-const statuses = await getSeederStatuses();
-// [{ name: "20260320120000-user.seeder", status: "success", executedAt: Date, error: null }]
-```
-
-### `resetSeeder(name, config?)`
-
-Marks a seeder as pending again so it will re-run on next `runPendingSeeders()` call.
-
-```typescript
-await resetSeeder("20260320120000-user.seeder");
-```
+| Function                         | Description                                       | Returns             |
+| -------------------------------- | ------------------------------------------------- | ------------------- |
+| `runPendingSeeders(config?)`     | Runs seeders without a successful tracking record | `SeederRunResult[]` |
+| `runSeederByName(name, config?)` | Force-runs one seeder, even if already executed   | `SeederRunResult[]` |
+| `getSeederStatuses(config?)`     | Lists `pending`, `success`, and `failed` seeders  | `SeederStatus[]`    |
+| `resetSeeder(name, config?)`     | Deletes the tracking record so a seeder can rerun | `Promise<void>`     |
 
 ## Config
 
-All functions accept an optional inline config. If omitted, the config file is loaded automatically.
+Config is loaded from `mongoose-seed-kit.config.js`, `mongoose-seed-kit.config.json`, the `"mongoose-seed-kit"` key in `package.json`, or an inline override.
 
 | Option           | Type                     | Default                           | Description                                                                                      |
 | ---------------- | ------------------------ | --------------------------------- | ------------------------------------------------------------------------------------------------ |
@@ -113,20 +82,9 @@ All functions accept an optional inline config. If omitted, the config file is l
 | `filePattern`    | `RegExp`                 | `/^\d{14}-.+\.seeder\.(ts\|js)$/` | Pattern to match seeder files                                                                    |
 | `mongoUri`       | `string`                 | —                                 | Optional MongoDB URI used by CLI commands                                                        |
 
-### Avoiding duplicate Mongoose model errors (`src` vs `dist`)
+### `src` vs `dist`
 
-Seeders typically `require("../models/...")`. If your **app** loads models from
-`src/` (e.g. via `tsx`/`ts-node` in development) while seeders are loaded from
-`dist/` (because that's where you point `seedersPath`), Node treats them as
-**two different modules**. The model file runs twice and Mongoose throws:
-
-```
-Cannot overwrite `Teaching` model once compiled.
-```
-
-The fix is to keep seeders in the **same module graph** as the rest of the app:
-use `src/db/seeders` in development and `dist/db/seeders` in production.
-`mongoose-seed-kit` ships a helper for this:
+If your app loads models from `src/` but seeders from `dist/`, Node can load the same model twice and Mongoose may throw `Cannot overwrite ... model once compiled.` Keep seeders in the same module graph as the app by using `resolveSeedersPath`:
 
 ```javascript
 // mongoose-seed-kit.config.js
@@ -137,34 +95,12 @@ module.exports = {
   seedersPath: resolveSeedersPath({
     src: path.join(__dirname, "src/db/seeders"),
     dist: path.join(__dirname, "dist/db/seeders"),
-    // Optional explicit override:
     srcWhen: () => process.env.NODE_ENV === "development",
   }),
 };
 ```
 
-`resolveSeedersPath` picks `src` when:
-
-- `srcWhen()` returns `true`, or
-- the entry script ends in `.ts`/`.tsx` or is loaded via `tsx` / `ts-node`.
-
-It picks `dist` when the runtime is plain `node dist/...`. You can also pass
-your own function as `seedersPath` for full control.
-
-Config is resolved from (in order):
-
-1. `mongoose-seed-kit.config.js`
-2. `mongoose-seed-kit.config.json`
-3. `"mongoose-seed-kit"` key in `package.json`
-
-Or pass config inline:
-
-```typescript
-await runPendingSeeders({
-  seedersPath: "./seeders",
-  collectionName: "my_seeders",
-});
-```
+The helper picks `src` when `srcWhen()` returns true or the runtime looks like `tsx`/`ts-node`; otherwise it picks `dist`. You can also pass your own `() => string` as `seedersPath`.
 
 ## CLI
 
@@ -176,29 +112,16 @@ npx mongoose-seed-kit run <name>       # Force-run one seeder by name
 npx mongoose-seed-kit reset <name>     # Mark a seeder as pending
 ```
 
-Commands that read or write seeder status need a MongoDB connection. Set
-`MONGODB_URI` or `DATABASE_URL`:
+Commands that read/write status need `MONGODB_URI`, `DATABASE_URL`, or config `mongoUri`. `run` exits non-zero if any seeder fails.
 
 ```bash
 MONGODB_URI=mongodb://localhost:27017/myapp npx mongoose-seed-kit status
 MONGODB_URI=mongodb://localhost:27017/myapp npx mongoose-seed-kit run
 ```
 
-You can also put the URI in your config:
-
-```javascript
-module.exports = {
-  seedersPath: "./src/db/seeders",
-  mongoUri: process.env.MONGODB_URI,
-};
-```
-
-`run` exits with a non-zero status if any seeder fails, which makes it suitable
-for CI or deployment scripts.
-
 ## Building Admin Routes
 
-The package exposes helper functions — build your own routes:
+Build admin routes with the same APIs:
 
 ```typescript
 import {
@@ -232,7 +155,3 @@ Submit a pull request or open an issue on GitHub.
 ## License
 
 This project is licensed under the MIT License.
-
----
-
-For more information, visit the [GitHub repository](https://github.com/kulcsarrudolf/mongoose-seed-kit).
