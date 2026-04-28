@@ -22,7 +22,9 @@ yarn version --"$BUMP" --no-git-tag-version
 VERSION=$(node -p "require('./package.json').version")
 git add package.json
 git commit -m "chore: bump version $VERSION"
-git tag "v$VERSION"
+# Annotated tag (signed when commit.gpgsign / tag.gpgsign is enabled).
+# A message is required, otherwise `git tag` aborts with "fatal: no tag message?".
+git tag -a "v$VERSION" -m "v$VERSION"
 
 # Release
 git push origin main --tags
