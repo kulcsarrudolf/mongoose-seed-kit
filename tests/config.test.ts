@@ -43,6 +43,14 @@ describe("config", function () {
     expect(config.collectionName).to.equal("custom_seeders");
   });
 
+  it("should preserve optional mongoUri for CLI commands", function () {
+    const config = loadConfig({
+      seedersPath: "./seeders",
+      mongoUri: "mongodb://localhost:27017/test",
+    });
+    expect(config.mongoUri).to.equal("mongodb://localhost:27017/test");
+  });
+
   it("should resolve config from mongoose-seed-kit.config.js", function () {
     const configFile = path.join(tmpDir, "mongoose-seed-kit.config.js");
     fs.writeFileSync(
@@ -73,9 +81,9 @@ describe("config", function () {
   });
 
   it("should throw if seedersPath function returns empty", function () {
-    expect(() =>
-      loadConfig({ seedersPath: () => "" }),
-    ).to.throw("non-empty string");
+    expect(() => loadConfig({ seedersPath: () => "" })).to.throw(
+      "non-empty string",
+    );
   });
 
   it("should resolve config from package.json", function () {

@@ -11,6 +11,7 @@ export interface MongooseSeederConfig {
   seedersPath: string | SeedersPathResolver;
   collectionName?: string;
   filePattern?: RegExp;
+  mongoUri?: string;
 }
 
 /** Internal shape after `loadConfig` has resolved any function form. */
@@ -18,6 +19,7 @@ export interface ResolvedMongooseSeederConfig {
   seedersPath: string;
   collectionName: string;
   filePattern: RegExp;
+  mongoUri?: string;
 }
 
 export interface SeederRunResult {

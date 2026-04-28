@@ -106,11 +106,12 @@ await resetSeeder("20260320120000-user.seeder");
 
 All functions accept an optional inline config. If omitted, the config file is loaded automatically.
 
-| Option           | Type                  | Default                                  | Description                              |
-| ---------------- | --------------------- | ---------------------------------------- | ---------------------------------------- |
-| `seedersPath`    | `string \| () => string` | —                                     | Path to directory containing seeder files. May be a function for runtime resolution (see below). |
-| `collectionName` | `string`              | `"seeders"`                              | MongoDB collection for tracking execution |
-| `filePattern`    | `RegExp`              | `/^\d{14}-.+\.seeder\.(ts\|js)$/`        | Pattern to match seeder files            |
+| Option           | Type                     | Default                           | Description                                                                                      |
+| ---------------- | ------------------------ | --------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `seedersPath`    | `string \| () => string` | —                                 | Path to directory containing seeder files. May be a function for runtime resolution (see below). |
+| `collectionName` | `string`                 | `"seeders"`                       | MongoDB collection for tracking execution                                                        |
+| `filePattern`    | `RegExp`                 | `/^\d{14}-.+\.seeder\.(ts\|js)$/` | Pattern to match seeder files                                                                    |
+| `mongoUri`       | `string`                 | —                                 | Optional MongoDB URI used by CLI commands                                                        |
 
 ### Avoiding duplicate Mongoose model errors (`src` vs `dist`)
 
@@ -159,21 +160,53 @@ Config is resolved from (in order):
 Or pass config inline:
 
 ```typescript
-await runPendingSeeders({ seedersPath: "./seeders", collectionName: "my_seeders" });
+await runPendingSeeders({
+  seedersPath: "./seeders",
+  collectionName: "my_seeders",
+});
 ```
 
 ## CLI
 
 ```bash
 npx mongoose-seed-kit create <name>    # Scaffold a new seeder file
+npx mongoose-seed-kit status           # List seeders and statuses
+npx mongoose-seed-kit run              # Run all pending seeders
+npx mongoose-seed-kit run <name>       # Force-run one seeder by name
+npx mongoose-seed-kit reset <name>     # Mark a seeder as pending
 ```
+
+Commands that read or write seeder status need a MongoDB connection. Set
+`MONGODB_URI` or `DATABASE_URL`:
+
+```bash
+MONGODB_URI=mongodb://localhost:27017/myapp npx mongoose-seed-kit status
+MONGODB_URI=mongodb://localhost:27017/myapp npx mongoose-seed-kit run
+```
+
+You can also put the URI in your config:
+
+```javascript
+module.exports = {
+  seedersPath: "./src/db/seeders",
+  mongoUri: process.env.MONGODB_URI,
+};
+```
+
+`run` exits with a non-zero status if any seeder fails, which makes it suitable
+for CI or deployment scripts.
 
 ## Building Admin Routes
 
 The package exposes helper functions — build your own routes:
 
 ```typescript
-import { getSeederStatuses, runSeederByName, runPendingSeeders, resetSeeder } from "mongoose-seed-kit";
+import {
+  getSeederStatuses,
+  runSeederByName,
+  runPendingSeeders,
+  resetSeeder,
+} from "mongoose-seed-kit";
 
 router.get("/seeders", async (req, res) => {
   res.json(await getSeederStatuses());

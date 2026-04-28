@@ -73,6 +73,7 @@ export function loadConfig(
     seedersPath,
     collectionName: merged.collectionName ?? DEFAULT_COLLECTION_NAME,
     filePattern: merged.filePattern ?? DEFAULT_FILE_PATTERN,
+    mongoUri: merged.mongoUri,
   };
 }
 
@@ -120,9 +121,11 @@ export function resolveSeedersPath(opts: {
 
     const isTsRuntime =
       /\.(ts|tsx)$/.test(argvFile) ||
-      Boolean((process as unknown as { _preload_modules?: string[] })._preload_modules?.some((m) =>
-        /tsx|ts-node/.test(m),
-      )) ||
+      Boolean(
+        (
+          process as unknown as { _preload_modules?: string[] }
+        )._preload_modules?.some((m) => /tsx|ts-node/.test(m)),
+      ) ||
       Boolean(process.env.TS_NODE_DEV) ||
       Boolean(process.env.TSX);
     return isTsRuntime ? opts.src : opts.dist;
