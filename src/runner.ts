@@ -35,6 +35,7 @@ async function runSingleSeeder(
   results: SeederRunResult[],
 ): Promise<void> {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic load of a user seeder file
     const seederModule = require(filepath);
     const seederFn: SeederFn = seederModule.default || seederModule;
 

@@ -11,6 +11,7 @@ function loadConfigFromFile(cwd: string): Partial<MongooseSeederConfig> | null {
   for (const filename of CONFIG_FILES) {
     const filepath = path.resolve(cwd, filename);
     if (fs.existsSync(filepath)) {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic load of a user config file
       const loaded = require(filepath);
       return loaded.default || loaded;
     }
