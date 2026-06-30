@@ -20,8 +20,10 @@
   },
   "scripts": {
     "build": "tsup",
-    "pretest": "tsc -p tests",
+    "clean:tests": "node -e \"require('fs').rmSync('build',{recursive:true,force:true})\"",
+    "pretest": "yarn clean:tests && tsc -p tests",
     "test": "mocha",
+    "coverage": "yarn clean:tests && tsc -p tests && c8 mocha",
     "prepack": "yarn run build",
     "pack": "yarn pack",
     "publish": "yarn publish",
