@@ -4,7 +4,7 @@
 [![license](https://badgen.net/npm/license/mongoose-seed-kit)](https://github.com/kulcsarrudolf/mongoose-seed-kit/blob/main/LICENSE)
 [![downloads](https://img.shields.io/npm/dt/mongoose-seed-kit)](https://www.npmjs.com/package/mongoose-seed-kit)
 [![GitHub Stars](https://badgen.net/github/stars/kulcsarrudolf/mongoose-seed-kit)](https://github.com/kulcsarrudolf/mongoose-seed-kit)
-[![tests](https://img.shields.io/github/actions/workflow/status/kulcsarrudolf/mongoose-seed-kit/publish.yml?label=tests)](https://github.com/kulcsarrudolf/mongoose-seed-kit/actions)
+[![CI](https://img.shields.io/github/actions/workflow/status/kulcsarrudolf/mongoose-seed-kit/ci.yml?label=CI)](https://github.com/kulcsarrudolf/mongoose-seed-kit/actions/workflows/ci.yml)
 
 A lightweight, zero-dependency seeder toolkit for Mongoose. Run one-time seed scripts on app startup, track execution status, and manage seeders via CLI without registering extra Mongoose models.
 
