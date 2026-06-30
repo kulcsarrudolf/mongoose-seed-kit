@@ -24,13 +24,13 @@ export interface ResolvedMongooseSeederConfig {
 
 export interface SeederRunResult {
   name: string;
-  status: "success" | "failed" | "skipped";
+  status: 'success' | 'failed' | 'skipped';
   error?: string;
 }
 
 export interface SeederStatus {
   name: string;
-  status: "success" | "failed" | "pending";
+  status: 'success' | 'failed' | 'pending';
   executedAt: Date | null;
   error: string | null;
 }
@@ -38,6 +38,6 @@ export interface SeederStatus {
 export interface SeederRecord {
   name: string;
   executedAt: Date;
-  status: "success" | "failed";
+  status: 'success' | 'failed';
   error?: string;
 }

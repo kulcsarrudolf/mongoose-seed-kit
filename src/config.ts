@@ -1,18 +1,11 @@
-import fs from "fs";
-import path from "path";
-import {
-  MongooseSeederConfig,
-  ResolvedMongooseSeederConfig,
-  SeedersPathResolver,
-} from "./types";
+import fs from 'fs';
+import path from 'path';
+import { MongooseSeederConfig, ResolvedMongooseSeederConfig, SeedersPathResolver } from './types';
 
-const DEFAULT_COLLECTION_NAME = "seeders";
+const DEFAULT_COLLECTION_NAME = 'seeders';
 const DEFAULT_FILE_PATTERN = /^\d{14}-.+\.seeder\.(ts|js)$/;
 
-const CONFIG_FILES = [
-  "mongoose-seed-kit.config.js",
-  "mongoose-seed-kit.config.json",
-];
+const CONFIG_FILES = ['mongoose-seed-kit.config.js', 'mongoose-seed-kit.config.json'];
 
 function loadConfigFromFile(cwd: string): Partial<MongooseSeederConfig> | null {
   for (const filename of CONFIG_FILES) {
@@ -23,21 +16,19 @@ function loadConfigFromFile(cwd: string): Partial<MongooseSeederConfig> | null {
     }
   }
 
-  const pkgPath = path.resolve(cwd, "package.json");
+  const pkgPath = path.resolve(cwd, 'package.json');
   if (fs.existsSync(pkgPath)) {
-    const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
-    if (pkg["mongoose-seed-kit"]) {
-      return pkg["mongoose-seed-kit"];
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+    if (pkg['mongoose-seed-kit']) {
+      return pkg['mongoose-seed-kit'];
     }
   }
 
   return null;
 }
 
-function isResolver(
-  value: string | SeedersPathResolver | undefined,
-): value is SeedersPathResolver {
-  return typeof value === "function";
+function isResolver(value: string | SeedersPathResolver | undefined): value is SeedersPathResolver {
+  return typeof value === 'function';
 }
 
 export function loadConfig(
@@ -51,23 +42,17 @@ export function loadConfig(
   if (!merged.seedersPath) {
     throw new Error(
       'mongoose-seed-kit: "seedersPath" is required. ' +
-        "Provide it via mongoose-seed-kit.config.js, package.json, or inline config.",
+        'Provide it via mongoose-seed-kit.config.js, package.json, or inline config.',
     );
   }
 
-  const rawPath = isResolver(merged.seedersPath)
-    ? merged.seedersPath()
-    : merged.seedersPath;
+  const rawPath = isResolver(merged.seedersPath) ? merged.seedersPath() : merged.seedersPath;
 
-  if (typeof rawPath !== "string" || rawPath.length === 0) {
-    throw new Error(
-      'mongoose-seed-kit: "seedersPath" must resolve to a non-empty string.',
-    );
+  if (typeof rawPath !== 'string' || rawPath.length === 0) {
+    throw new Error('mongoose-seed-kit: "seedersPath" must resolve to a non-empty string.');
   }
 
-  const seedersPath = path.isAbsolute(rawPath)
-    ? rawPath
-    : path.resolve(cwd, rawPath);
+  const seedersPath = path.isAbsolute(rawPath) ? rawPath : path.resolve(cwd, rawPath);
 
   return {
     seedersPath,
@@ -113,18 +98,17 @@ export function resolveSeedersPath(opts: {
   return () => {
     if (opts.srcWhen && opts.srcWhen()) return opts.src;
 
-    const callerFile = (require.main && require.main.filename) || "";
-    const argvFile = process.argv[1] || "";
-    const looksCompiled =
-      /[\\/]dist[\\/]/.test(callerFile) || /[\\/]dist[\\/]/.test(argvFile);
+    const callerFile = (require.main && require.main.filename) || '';
+    const argvFile = process.argv[1] || '';
+    const looksCompiled = /[\\/]dist[\\/]/.test(callerFile) || /[\\/]dist[\\/]/.test(argvFile);
     if (looksCompiled) return opts.dist;
 
     const isTsRuntime =
       /\.(ts|tsx)$/.test(argvFile) ||
       Boolean(
-        (
-          process as unknown as { _preload_modules?: string[] }
-        )._preload_modules?.some((m) => /tsx|ts-node/.test(m)),
+        (process as unknown as { _preload_modules?: string[] })._preload_modules?.some((m) =>
+          /tsx|ts-node/.test(m),
+        ),
       ) ||
       Boolean(process.env.TS_NODE_DEV) ||
       Boolean(process.env.TSX);

@@ -1,20 +1,20 @@
-import fs from "fs";
-import path from "path";
-import { loadConfig } from "./config";
+import fs from 'fs';
+import path from 'path';
+import { loadConfig } from './config';
 import {
   ensureIndexes,
   getExecutedSeeders,
   getAllTrackedSeeders,
   upsertSeederRecord,
   deleteSeederRecord,
-} from "./tracker";
+} from './tracker';
 import {
   MongooseSeederConfig,
   ResolvedMongooseSeederConfig,
   SeederRunResult,
   SeederStatus,
   SeederRecord,
-} from "./types";
+} from './types';
 
 type SeederFn = () => Promise<void>;
 
@@ -38,7 +38,7 @@ async function runSingleSeeder(
     const seederModule = require(filepath);
     const seederFn: SeederFn = seederModule.default || seederModule;
 
-    if (typeof seederFn !== "function") {
+    if (typeof seederFn !== 'function') {
       throw new Error(`Seeder "${name}" does not export a function`);
     }
 
@@ -47,10 +47,10 @@ async function runSingleSeeder(
     await upsertSeederRecord(collectionName, {
       name,
       executedAt: new Date(),
-      status: "success",
+      status: 'success',
     });
 
-    results.push({ name, status: "success" });
+    results.push({ name, status: 'success' });
     console.log(`[mongoose-seed-kit] "${name}" ran successfully`);
   } catch (err: any) {
     const errorMessage = err?.message || String(err);
@@ -58,11 +58,11 @@ async function runSingleSeeder(
     await upsertSeederRecord(collectionName, {
       name,
       executedAt: new Date(),
-      status: "failed",
+      status: 'failed',
       error: errorMessage,
     });
 
-    results.push({ name, status: "failed", error: errorMessage });
+    results.push({ name, status: 'failed', error: errorMessage });
     console.error(`[mongoose-seed-kit] "${name}" failed: ${errorMessage}`);
   }
 }
@@ -83,7 +83,7 @@ export async function runPendingSeeders(
     const name = path.basename(file, path.extname(file));
 
     if (executedNames.has(name)) {
-      results.push({ name, status: "skipped" });
+      results.push({ name, status: 'skipped' });
       continue;
     }
 
@@ -102,9 +102,7 @@ export async function runSeederByName(
   await ensureIndexes(config.collectionName);
 
   const files = getSeederFiles(config);
-  const file = files.find(
-    (f) => path.basename(f, path.extname(f)) === seederName,
-  );
+  const file = files.find((f) => path.basename(f, path.extname(f)) === seederName);
 
   if (!file) {
     throw new Error(`Seeder "${seederName}" not found`);
@@ -124,19 +122,14 @@ export async function getSeederStatuses(
 
   const files = getSeederFiles(config);
   const tracked = await getAllTrackedSeeders(config.collectionName);
-  const trackedMap = new Map<string, SeederRecord>(
-    tracked.map((s) => [s.name, s]),
-  );
+  const trackedMap = new Map<string, SeederRecord>(tracked.map((s) => [s.name, s]));
 
   return files.map((f) => {
     const name = path.basename(f, path.extname(f));
     const record = trackedMap.get(name);
     return {
       name,
-      status: (record?.status ?? "pending") as
-        | "success"
-        | "failed"
-        | "pending",
+      status: (record?.status ?? 'pending') as 'success' | 'failed' | 'pending',
       executedAt: record?.executedAt ?? null,
       error: record?.error ?? null,
     };
