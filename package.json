@@ -4,6 +4,13 @@
   "description": "A lightweight, zero-dependency seeder toolkit for Mongoose",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "sideEffects": false,
   "files": [
     "dist/**/*",
     "bin/**/*"
@@ -12,8 +19,7 @@
     "mongoose-seed-kit": "./bin/mongoose-seed-kit.js"
   },
   "scripts": {
-    "prebuild": "shx rm -rf dist",
-    "build": "tsc",
+    "build": "tsup",
     "pretest": "tsc -p tests",
     "test": "mocha",
     "prepack": "yarn run build",
@@ -63,9 +69,9 @@
     "mocha": "^10.2.0",
     "mongoose": "^7.4.2",
     "prettier": "^3.8.1",
-    "shx": "^0.3.4",
     "sinon": "^15.2.0",
     "testcontainers": "^10.0.0",
+    "tsup": "^8.5.1",
     "typescript": "^5.1.6",
     "typescript-eslint": "^8.62.1"
   },
