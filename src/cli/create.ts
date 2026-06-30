@@ -1,6 +1,6 @@
-import fs from "fs";
-import path from "path";
-import { loadConfig } from "../config";
+import fs from 'fs';
+import path from 'path';
+import { loadConfig } from '../config';
 
 const TEMPLATE = `const seed = async (): Promise<void> => {
   // TODO: implement seeder
@@ -16,7 +16,7 @@ export default seed;
 
 function generateTimestamp(): string {
   const now = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
+  const pad = (n: number) => String(n).padStart(2, '0');
   return (
     `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}` +
     `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`
