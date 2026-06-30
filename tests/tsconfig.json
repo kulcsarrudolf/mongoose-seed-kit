@@ -9,7 +9,8 @@
 
     "rootDir": "..",
     "outDir": "../build/test",
-    "declaration": false
+    "declaration": false,
+    "sourceMap": true
   },
   "include": ["./**/*", "../src/**/*"]
 }
